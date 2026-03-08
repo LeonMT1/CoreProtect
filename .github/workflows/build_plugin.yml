@@ -1,0 +1,39 @@
+name: Build CoreProtect
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: project.branch in pom.xml setzen
+        run: |
+          sed -i 's|<project.branch></project.branch>|<project.branch>developer</project.branch>|g' pom.xml
+
+      - name: Build w/ Maven
+        run: mvn clean install -B
+
+      - name: Upload builded jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoreProtect-Plugin
+          path: target/CoreProtect-*.jar
+          if-no-files-found: error
+          exclude: |
+            target/CoreProtect-*-original.jar
