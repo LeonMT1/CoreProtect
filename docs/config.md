@@ -38,14 +38,14 @@ The blacklist supports disabling logs for:
 An example blacklist.txt file would look like this:
 
 ```text
-Notch # User
-#tnt # TNT explosions
-/help # Help command
-minecraft:stone # Stone blocks
-minecraft:creeper # Creeper entity
-minecraft:shears@#dispenser # Shears being dispensed
+Notch ; User
+#tnt ; TNT explosions
+/help ; Help command
+minecraft:stone ; Stone blocks
+minecraft:creeper ; Creeper entity
+minecraft:shears@#dispenser ; Shears being dispensed
 ```
 
 
 *Please note that to disable logging for blocks, CoreProtect v23+ is required.*
-*To disable logging for entities or to use filtering, CoreProtect v23.4+ is required.*
+*To disable logging for entities or to use filtering, CoreProtect v24+ is required.*

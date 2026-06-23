@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 
 import net.coreprotect.CoreProtect;
@@ -17,7 +16,9 @@ import net.coreprotect.database.statement.BlockStatement;
 import net.coreprotect.database.statement.EntityStatement;
 import net.coreprotect.database.statement.UserStatement;
 import net.coreprotect.event.CoreProtectPreLogEvent;
+import net.coreprotect.model.action.LookupActions;
 import net.coreprotect.utility.WorldUtils;
+import net.coreprotect.utility.ErrorReporter;
 
 public class EntityKillLogger {
 
@@ -25,7 +26,7 @@ public class EntityKillLogger {
         throw new IllegalStateException("Database class");
     }
 
-    public static void log(PreparedStatement preparedStmt, PreparedStatement preparedStmt2, int batchCount, String user, BlockState block, List<Object> data, int type) {
+    public static void log(PreparedStatement preparedStmt, PreparedStatement preparedStmt2, int batchCount, String user, Location location, List<Object> data, int type) {
         try {
             if (ConfigHandler.isBlacklisted(user)){
                 return;
@@ -42,8 +43,8 @@ public class EntityKillLogger {
                 return;
             }
 
-            Location initialLocation = new Location(block.getWorld(), block.getX(), block.getY(), block.getZ());
-            CoreProtectPreLogEvent event = new CoreProtectPreLogEvent(user, initialLocation);
+            Location initialLocation = location.clone();
+            CoreProtectPreLogEvent event = new CoreProtectPreLogEvent(user, initialLocation, CoreProtectPreLogEvent.Action.ENTITY_KILL, LookupActions.ENTITY_KILL, null, checkType, null);
             if (Config.getGlobal().API_ENABLED && !Bukkit.isPrimaryThread()) {
                 CoreProtect.getInstance().getServer().getPluginManager().callEvent(event);
             }
@@ -74,10 +75,10 @@ public class EntityKillLogger {
                 keys.close();
             }
 
-            BlockStatement.insert(preparedStmt, batchCount, time, userId, wid, x, y, z, type, entity_key, null, null, 3, 0);
+            BlockStatement.insert(preparedStmt, batchCount, time, userId, wid, x, y, z, type, entity_key, null, null, LookupActions.ENTITY_KILL, 0);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            ErrorReporter.report(e);
         }
     }
 
